@@ -67,54 +67,54 @@ historyTextArea.fontSize = historyFontSize
 historyTextArea.fontFamily = editFontFamily
 
 if fileExists(historyFilePath):
-  historyTextArea.text = readFile(historyFilePath)
+    historyTextArea.text = readFile(historyFilePath)
 if historyTextArea.text.len == 0:
-  historyContainer.hide()
+    historyContainer.hide()
 
 proc updateResult(event: TimerEvent) =
-  timer.stop()
-  var term = inputTextBox.text
-  lastCalculation = ""
-  resultTextBox.text = ""
-  if term.len == 0:
-    return
-  try:
-    let resultStr = term.calculate.formatFloat
-    resultTextBox.textColor = app.defaultTextColor
-    resultTextBox.text = resultStr
-    lastCalculation = term & " = " & resultStr
-  except:
-    resultTextBox.textColor = rgb(255, 0, 0) # red
-    resultTextBox.text = "Error: " & getCurrentExceptionMsg()
+    timer.stop()
+    var term = inputTextBox.text
+    lastCalculation = ""
+    resultTextBox.text = ""
+    if term.len == 0:
+        return
+    try:
+        let resultStr = term.calculate.formatFloat
+        resultTextBox.textColor = app.defaultTextColor
+        resultTextBox.text = resultStr
+        lastCalculation = term & " = " & resultStr
+    except:
+        resultTextBox.textColor = rgb(255, 0, 0) # red
+        resultTextBox.text = "Error: " & getCurrentExceptionMsg()
 
 inputTextBox.onTextChange = proc(event: TextChangeEvent) =
-  lastCalculation = ""
-  resultTextBox.text = ""
-  timer.stop()
-  timer = startTimer(500, updateResult)
+    lastCalculation = ""
+    resultTextBox.text = ""
+    timer.stop()
+    timer = startTimer(500, updateResult)
 
 inputTextBox.onKeyDown = proc(event: KeyboardEvent) =
-  if event.key == Key_Return:
-    if lastCalculation == "":
-      updateResult(nil)
-    if lastCalculation != "":
-      historyTextArea.addLine(lastCalculation)
-      historyTextArea.scrollToBottom()
-      historyContainer.show()
+    if event.key == Key_Return:
+        if lastCalculation == "":
+            updateResult(nil)
+        if lastCalculation != "":
+            historyTextArea.addLine(lastCalculation)
+            historyTextArea.scrollToBottom()
+            historyContainer.show()
 
 window.onKeyDown = proc(event: KeyboardEvent) =
-  if event.key == Key_Escape:
-    window.dispose()
+    if event.key == Key_Escape:
+        window.dispose()
 
 window.onDispose = proc(event: WindowDisposeEvent) =
-  if historyTextArea.text.len > 0 or fileExists(historyFilePath):
-    createDir(appConfigDir)
-    writeFile(historyFilePath, historyTextArea.text)
+    if historyTextArea.text.len > 0 or fileExists(historyFilePath):
+        createDir(appConfigDir)
+        writeFile(historyFilePath, historyTextArea.text)
 
 clearButton.onClick = proc(event: ClickEvent) =
-  inputTextBox.text = ""
-  resultTextBox.text = ""
-  inputTextBox.focus()
+    inputTextBox.text = ""
+    resultTextBox.text = ""
+    inputTextBox.focus()
 
 window.show()
 inputTextBox.focus()

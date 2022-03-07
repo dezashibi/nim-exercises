@@ -47,9 +47,9 @@ container.add(textArea)
 button.onClick = proc(event: ClickEvent) =
 # Set an event handler for the "onClick" event (here as anonymous proc).
 
-  textArea.addLine("Button 1 clicked, message box opened.")
-  window.alert("This is a simple message box.")
-  textArea.addLine("Message box closed.")
+    textArea.addLine("Button 1 clicked, message box opened.")
+    window.alert("This is a simple message box.")
+    textArea.addLine("Message box closed.")
 
 window.show()
 # Make the window visible on the screen.

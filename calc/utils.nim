@@ -4,148 +4,148 @@ import strutils
 import math
 
 proc formatFloat*(f: float, decimals: range[-1 .. 32] = -1): string =
-  if decimals == -1:
-    result = f.formatFloat(ffDecimal, 6)
-    result.trimZeros
-  elif decimals == 0:
-    result = $f.round.int
-  else:
-    result = f.formatFloat(ffDecimal, decimals)
-  if result == "-0":
-    result = "0"
-  var i = result.find('.')
-  if i == -1:
-    i = result.len
-  if i > 4:
-    var groups: seq[string] = @[]
-    groups.add(result.substr(i))
-    while i > 3:
-      groups.add(result.substr(i - 3, i - 1))
-      i = i - 3
-    groups.add(result.substr(0, i - 1))
-    result = ""
-    i = 0
-    for g in groups:
-      if i > 1:
-        result = ',' & result
-      result = g & result
-      i.inc
+    if decimals == -1:
+        result = f.formatFloat(ffDecimal, 6)
+        result.trimZeros
+    elif decimals == 0:
+        result = $f.round.int
+    else:
+        result = f.formatFloat(ffDecimal, decimals)
+    if result == "-0":
+        result = "0"
+    var i = result.find('.')
+    if i == -1:
+        i = result.len
+    if i > 4:
+        var groups: seq[string] = @[]
+        groups.add(result.substr(i))
+        while i > 3:
+            groups.add(result.substr(i - 3, i - 1))
+            i = i - 3
+        groups.add(result.substr(0, i - 1))
+        result = ""
+        i = 0
+        for g in groups:
+            if i > 1:
+                result = ',' & result
+            result = g & result
+            i.inc
 
 
 type
-  ErrorCode* = enum
-    NoError
-    Error1
-    Error2
-    Error3
-    Error4
-    Error5
-    Error6
-    Error7
-    Error8
-    Error9
-    Error10
+    ErrorCode* = enum
+        NoError
+        Error1
+        Error2
+        Error3
+        Error4
+        Error5
+        Error6
+        Error7
+        Error8
+        Error9
+        Error10
 
-  CalcException* = ref object of Exception
-    errorCode*: ErrorCode
+    CalcException* = ref object of Exception
+        errorCode*: ErrorCode
 
 proc newCalcException(errorCode: ErrorCode, msg: string): CalcException =
-  result = new CalcException
-  result.errorCode = errorCode
-  result.msg = msg
+    result = new CalcException
+    result.errorCode = errorCode
+    result.msg = msg
 
 proc checkNumber(number: float): float =
-  if number.classify == fcNan:
-    raise newCalcException(Error5, "Result is not a number")
-  if number.classify == fcNegInf:
-    raise newCalcException(Error8, "Result is negative infinity")
-  if number.classify == fcInf:
-    raise newCalcException(Error9, "Result is infinity")
-  result = number
+    if number.classify == fcNan:
+        raise newCalcException(Error5, "Result is not a number")
+    if number.classify == fcNegInf:
+        raise newCalcException(Error8, "Result is negative infinity")
+    if number.classify == fcInf:
+        raise newCalcException(Error9, "Result is infinity")
+    result = number
 
 
 type
-  NodeKind = enum
-    NK_Literal
-    NK_Identifier
-    NK_Operator
-    NK_OpeningBracket
-    NK_ClosingBracket
-    NK_InBrackets
-  Operator = enum
-    Op_Power
-    Op_Div
-    Op_Mult
-    Op_Minus
-    Op_Plus
-  Node = ref object
-    case kind: NodeKind
-    of NK_Literal:
-      value: float
-    of NK_Operator:
-      operator: Operator
-      left, right: Node
-    of NK_InBrackets:
-      node: Node
-    of NK_Identifier:
-      name: string
-      nameLower: string
-      param: Node
-    else:
-      discard
+    NodeKind = enum
+        NK_Literal
+        NK_Identifier
+        NK_Operator
+        NK_OpeningBracket
+        NK_ClosingBracket
+        NK_InBrackets
+    Operator = enum
+        Op_Power
+        Op_Div
+        Op_Mult
+        Op_Minus
+        Op_Plus
+    Node = ref object
+        case kind: NodeKind
+        of NK_Literal:
+            value: float
+        of NK_Operator:
+            operator: Operator
+            left, right: Node
+        of NK_InBrackets:
+            node: Node
+        of NK_Identifier:
+            name: string
+            nameLower: string
+            param: Node
+        else:
+            discard
 
 const
-  Whitespace = {' ', '\t', '\v', '\c', '\n', '\f'}
-  Digits = {'0'..'9'}
-  DigitsWithSep = Digits + {'.', ',', '_'}
-  OpChars = ['^', '/', '*', '-', '+']
+    Whitespace = {' ', '\t', '\v', '\c', '\n', '\f'}
+    Digits = {'0'..'9'}
+    DigitsWithSep = Digits + {'.', ',', '_'}
+    OpChars = ['^', '/', '*', '-', '+']
 
 proc debugPrint(node: Node, level, i = 0) =
-  if level == 0 and i == 0:
-    echo "---"
-  var indent = ""
-  for j in 0..level - 1:
-    indent.add("  ")
-  var s = ""
-  s.add($i)
-  s.add(": ")
-  s.add($node.kind)
-  case node.kind:
-  of NK_Literal:
-    s.add(' ')
-    s.add($node.value)
-  of NK_Operator:
-    s.add(' ')
-    s.add($node.operator)
-  of NK_Identifier:
-    s.add(' ')
-    s.add($node.name)
-  else:
-    discard
-  echo indent, s
-  case node.kind:
-  of NK_Operator:
-    echo indent, "  left:"
-    if node.left != nil:
-      debugPrint(node.left, level + 1, 0)
-    echo indent, "  right:"
-    if node.right != nil:
-      debugPrint(node.right, level + 1, 0)
-  of NK_InBrackets:
-    if node.node != nil:
-      debugPrint(node.node, level + 1, 0)
-  of NK_Identifier:
-    if node.param != nil:
-      debugPrint(node.param, level + 1, 0)
-  else:
-    discard
+    if level == 0 and i == 0:
+        echo "---"
+    var indent = ""
+    for j in 0..level - 1:
+        indent.add("  ")
+    var s = ""
+    s.add($i)
+    s.add(": ")
+    s.add($node.kind)
+    case node.kind:
+    of NK_Literal:
+        s.add(' ')
+        s.add($node.value)
+    of NK_Operator:
+        s.add(' ')
+        s.add($node.operator)
+    of NK_Identifier:
+        s.add(' ')
+        s.add($node.name)
+    else:
+        discard
+    echo indent, s
+    case node.kind:
+    of NK_Operator:
+        echo indent, "  left:"
+        if node.left != nil:
+            debugPrint(node.left, level + 1, 0)
+        echo indent, "  right:"
+        if node.right != nil:
+            debugPrint(node.right, level + 1, 0)
+    of NK_InBrackets:
+        if node.node != nil:
+            debugPrint(node.node, level + 1, 0)
+    of NK_Identifier:
+        if node.param != nil:
+            debugPrint(node.param, level + 1, 0)
+    else:
+        discard
 
 proc debugPrint(nodes: seq[Node], level = 0) =
-  for i in 0..nodes.len - 1:
-    debugPrint(nodes[i], level, i)
+    for i in 0..nodes.len - 1:
+        debugPrint(nodes[i], level, i)
 
 proc newNode(k: NodeKind): Node =
-  result = Node(kind: k)
+    result = Node(kind: k)
 
 proc tokenize(term: string): seq[Node] =
   var i = 0

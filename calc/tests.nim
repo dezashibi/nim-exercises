@@ -5,24 +5,24 @@ import utils
 var failedTests = 0
 
 proc assert(term: string, expectedResult: float, expectedError = NoError) =
-  var exception: CalcException
-  var res: float
-  try:
-    res = calculate(term)
-  except CalcException:
-    exception = cast[CalcException](getCurrentException())
-  if expectedError == NoError and exception != nil:
-    echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat, "  result: ", exception.errorCode, ": ", exception.msg
-    failedTests.inc()
-  elif expectedError != NoError and exception == nil:
-    echo "TEST FAILED: ", term, "  expectedError: ", expectedError, "  result: NoError"
-    failedTests.inc()
-  elif expectedError != NoError and expectedError != exception.errorCode:
-    echo "TEST FAILED: ", term, "  expectedError: ", expectedError, "  result: ", exception.errorCode
-    failedTests.inc()
-  elif expectedError == NoError and res.formatFloat != expectedResult.formatFloat:
-    echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat, "  result: ", res.formatFloat
-    failedTests.inc()
+    var exception: CalcException
+    var res: float
+    try:
+        res = calculate(term)
+    except CalcException:
+        exception = cast[CalcException](getCurrentException())
+    if expectedError == NoError and exception != nil:
+        echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat, "  result: ", exception.errorCode, ": ", exception.msg
+        failedTests.inc()
+    elif expectedError != NoError and exception == nil:
+        echo "TEST FAILED: ", term, "  expectedError: ", expectedError, "  result: NoError"
+        failedTests.inc()
+    elif expectedError != NoError and expectedError != exception.errorCode:
+        echo "TEST FAILED: ", term, "  expectedError: ", expectedError, "  result: ", exception.errorCode
+        failedTests.inc()
+    elif expectedError == NoError and res.formatFloat != expectedResult.formatFloat:
+        echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat, "  result: ", res.formatFloat
+        failedTests.inc()
 
 assert("1", 1)
 assert("1+2", 3)
@@ -90,4 +90,4 @@ assert("-ln(0)", 0, Error8)
 assert("2^9999", 0, Error9)
 
 if failedTests == 0:
-  echo "All tests PASSED"
+    echo "All tests PASSED"
