@@ -8,5 +8,51 @@
 import unittest
 
 import nery
-test "can add":
-  check add(5, 5) == 10
+
+test "Without Columns":
+    let res = nery:
+        select myDbTable
+    assert res.id.name == "myDbTable"
+    assert res.columns == @[]
+
+
+test "With Columns":
+    let res = nery:
+        select myDbTable:
+            col1
+            col2
+    assert res.id.name == "myDbTable"
+    assert res.columns == @[Id(name: "col1"), Id(name: "col2")]
+
+
+test "Columns with alias":
+    let res = nery:
+        select myDbTable:
+            col1 as myCol1
+            col2
+    assert res.id.name == "myDbTable"
+    assert res.columns == @[Id(name: "col1", alias: "myCol1"), Id(name: "col2")]
+
+
+test "Table with alias":
+    let res = nery:
+        select myDbTable as aliasTable:
+            col1
+            col2
+    assert res.id.name == "myDbTable"
+    assert res.id.alias == "aliasTable"
+    assert res.columns == @[Id(name: "col1"), Id(name: "col2")]
+
+
+test "Order By test":
+    let res = nery:
+        select myDbTable:
+            col1
+            col2
+            orderBy:
+                col3
+                col4 asc
+                col5 desc
+    assert res.id.name == "myDbTable"
+    assert res.columns == @[Id(name: "col1"), Id(name: "col2")]
+    assert res.orderBy == @[OrderBy(id: Id(name: "col3"), order: asc), OrderBy(id: Id(name: "col4"), order: asc), OrderBy(id: Id(name: "col5"), order: desc)]
