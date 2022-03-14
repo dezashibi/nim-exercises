@@ -5,7 +5,7 @@ type
         username*: string
         message*: string
     
-    MessageParsingError* = object of Exception
+    MessageParsingError* = object of CatchableError
 
 proc parseMessage*(data: string): Message {.raises: [MessageParsingError, KeyError].} =
     var dataJson: JsonNode
