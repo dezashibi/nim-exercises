@@ -1,11 +1,11 @@
 when system.hostOS == "windows":
-  echo "running on Windows!"
+    echo "running on Windows!"
 elif system.hostOS == "linux":
-  echo "running on Linux!"
+    echo "running on Linux!"
 elif system.hostOS == "macosx":
-  echo "running on Mac OS X!"
+    echo "running on Mac OS X!"
 else:
-  echo "unknown operating system"
+    echo "unknown operating system"
 
 #[
 The when statement is almost identical to the if statement, but with these differences:
