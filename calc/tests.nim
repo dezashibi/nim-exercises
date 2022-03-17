@@ -12,16 +12,20 @@ proc assert(term: string, expectedResult: float, expectedError = NoError) =
     except CalcException:
         exception = cast[CalcException](getCurrentException())
     if expectedError == NoError and exception != nil:
-        echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat, "  result: ", exception.errorCode, ": ", exception.msg
+        echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat,
+                "  result: ", exception.errorCode, ": ", exception.msg
         failedTests.inc()
     elif expectedError != NoError and exception == nil:
         echo "TEST FAILED: ", term, "  expectedError: ", expectedError, "  result: NoError"
         failedTests.inc()
     elif expectedError != NoError and expectedError != exception.errorCode:
-        echo "TEST FAILED: ", term, "  expectedError: ", expectedError, "  result: ", exception.errorCode
+        echo "TEST FAILED: ", term, "  expectedError: ", expectedError,
+                "  result: ", exception.errorCode
         failedTests.inc()
-    elif expectedError == NoError and res.formatFloat != expectedResult.formatFloat:
-        echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat, "  result: ", res.formatFloat
+    elif expectedError == NoError and res.formatFloat !=
+            expectedResult.formatFloat:
+        echo "TEST FAILED: ", term, " = ", expectedResult.formatFloat,
+                "  result: ", res.formatFloat
         failedTests.inc()
 
 assert("1", 1)

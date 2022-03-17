@@ -4,7 +4,7 @@ type
     Message* = object
         username*: string
         message*: string
-    
+
     MessageParsingError* = object of CatchableError
 
 proc parseMessage*(data: string): Message {.raises: [MessageParsingError, KeyError].} =
@@ -12,9 +12,11 @@ proc parseMessage*(data: string): Message {.raises: [MessageParsingError, KeyErr
     try:
         dataJson = parseJson(data)
     except JsonParsingError:
-        raise newException(MessageParsingError, "Invalid JSON: " & getCurrentExceptionMsg())
+        raise newException(MessageParsingError, "Invalid JSON: " &
+                getCurrentExceptionMsg())
     except:
-        raise newException(MessageParsingError, "Unknown error: " & getCurrentExceptionMsg())
+        raise newException(MessageParsingError, "Unknown error: " &
+                getCurrentExceptionMsg())
 
     if not dataJson.hasKey("username"):
         raise newException(MessageParsingError, "Username field missing")

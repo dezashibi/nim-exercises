@@ -25,7 +25,8 @@ routes:
         dbConn.createTables(newEmployee())
         var eCorp = newCompany("ECopr")
         var foobar = newCompany("FooBar")
-        var employees = [newEmployee("Navid", "Dezashibi", eCorp), newEmployee("James", "Hetfield", foobar)]
+        var employees = [newEmployee("Navid", "Dezashibi", eCorp), newEmployee(
+                "James", "Hetfield", foobar)]
         dbConn.insert(employees)
         resp "Deployment Complete"
     get "/employees":

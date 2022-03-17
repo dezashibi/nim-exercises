@@ -1,13 +1,14 @@
 proc printf(format: cstring): cint {.importc, varargs, header: "stdio.h", discardable.}
 printf("My name is %s and I am %d years old!\n", "Navid", 35)
 
-proc displayFormatted(format: cstring): cint {.importc: "printf", varargs, header: "stdio.h", discardable .}
+proc displayFormatted(format: cstring): cint {.importc: "printf", varargs,
+        header: "stdio.h", discardable.}
 displayFormatted("My name is %s and I am %d years old!\n", "Navid", 35)
 
 type
     CTime = int64
 
-proc time(arg: ptr CTime): CTime {.importc, header: "<time.h>" .}
+proc time(arg: ptr CTime): CTime {.importc, header: "<time.h>".}
 
 type
     TM {.importc: "struct tm", header: "<time.h>".} = object

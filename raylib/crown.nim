@@ -2,18 +2,18 @@ import math
 import nimraylib_now
 
 const
-  nimFg: Color = (0xff, 0xc2, 0x00)          # Use this shortcut with alpha = 255!
+  nimFg: Color = (0xff, 0xc2, 0x00) # Use this shortcut with alpha = 255!
   nimBg: Color = (0x17, 0x18, 0x1f)
 
 # Let's draw a Nim crown!
 const
-  crownSides = 8                             # Low-polygon version
-  centerAngle = 2.0 * PI / crownSides.float  # Angle from the center of a circle
-  lowerRadius = 2.0                          # Lower crown circle
-  upperRadius = lowerRadius * 1.4            # Upper crown circle
-  mainHeight = lowerRadius * 0.8             # Height without teeth
-  toothHeight = mainHeight * 1.3             # Height with teeth
-  toothSkew = 1.2                            # Little angle for teeth
+  crownSides = 8                            # Low-polygon version
+  centerAngle = 2.0 * PI / crownSides.float # Angle from the center of a circle
+  lowerRadius = 2.0                         # Lower crown circle
+  upperRadius = lowerRadius * 1.4           # Upper crown circle
+  mainHeight = lowerRadius * 0.8            # Height without teeth
+  toothHeight = mainHeight * 1.3            # Height with teeth
+  toothSkew = 1.2                           # Little angle for teeth
 
 var
   lowerPoints, upperPoints: array[crownSides, tuple[x, y: float]]
@@ -32,33 +32,33 @@ for i in 0..<crownSides:
     y: upperRadius * sin(centerAngle * multiplier),
   )
 
-initWindow(800, 600, "[nim]RaylibNow!")  # Open window
+initWindow(800, 600, "[nim]RaylibNow!") # Open window
 
 var camera = Camera(
-  position: (5.0, 8.0, 10.0),  # Camera position
-  target: (0.0, 0.0, 0.0),     # Camera target it looks-at
-  up: (0.0, 1.0, 0.0),         # Camera up vector (rotation over its axis)
-  fovy: 45.0,                  # Camera field-of-view apperture in Y (degrees)
-  projection: Perspective      # Defines projection type, see CameraProjection
+  position: (5.0, 8.0, 10.0), # Camera position
+  target: (0.0, 0.0, 0.0),    # Camera target it looks-at
+  up: (0.0, 1.0, 0.0),        # Camera up vector (rotation over its axis)
+  fovy: 45.0,                 # Camera field-of-view apperture in Y (degrees)
+  projection: Perspective     # Defines projection type, see CameraProjection
 )
-camera.setCameraMode(Orbital)  # Several modes available, see CameraMode
+camera.setCameraMode(Orbital) # Several modes available, see CameraMode
 
-var pause = false              # Pausing the game will stop animation
+var pause = false # Pausing the game will stop animation
 
-setTargetFPS(60)               # Set the game to run at 60 frames per second
+setTargetFPS(60) # Set the game to run at 60 frames per second
 
 # Wait for Esc key press or when the window is closed
 while not windowShouldClose():
   if not pause:
-    camera.addr.updateCamera   # Rotate camera
+    camera.addr.updateCamera # Rotate camera
 
-  if isKeyPressed(Space):      # Pressing Space will stop/resume animation
+  if isKeyPressed(Space): # Pressing Space will stop/resume animation
     pause = not pause
 
-  beginDrawing:                # Use drawing functions inside this block
-    clearBackground(RayWhite)  # Set background color
+  beginDrawing: # Use drawing functions inside this block
+    clearBackground(RayWhite) # Set background color
 
-    beginMode3D(camera):       # Use 3D drawing functions inside this block
+    beginMode3D(camera): # Use 3D drawing functions inside this block
       drawGrid(10, 1.0)
 
       for i in 0..<crownSides:
@@ -106,7 +106,7 @@ while not windowShouldClose():
           verticalPos = (getScreenHeight().float * 0.4).int
         drawText(
           text,
-          (getScreenWidth() - textWidth) div 2,  # center
+          (getScreenWidth() - textWidth) div 2, # center
           (getScreenHeight() + verticalPos) div 2,
           fontSize,
           Black

@@ -47,7 +47,7 @@ echo allLines
 
 let lines = allLines.split("\n")
 echo lines
-var i:int = 1
+var i: int = 1
 for line in lines:
   echo $i & " - " & line
   inc i

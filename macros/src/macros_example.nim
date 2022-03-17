@@ -33,13 +33,16 @@ macro getPragmas(t: typedesc[Entity]): untyped =
     let myTreeImpl = t.getTypeInst[1].getImpl
     var pragmas: seq[Pragma] = @[]
     # echo myTreeImpl.treeRepr
-    if myTreeImpl.matches(TypeDef[_, _, RefTy[ObjectTy[_, _, RecList[all @identDefs]]]]):
+    if myTreeImpl.matches(TypeDef[_, _, RefTy[ObjectTy[_, _, RecList[
+            all @identDefs]]]]):
         for identDef in identDefs:
             if identDef.matches(IdentDefs[PragmaExpr[all @prags], _, _]):
-                if prags[0].matches(@ident is Ident()) and prags[1].matches(Pragma[all @sym is Sym()]):
+                if prags[0].matches(@ident is Ident()) and prags[1].matches(
+                        Pragma[all @sym is Sym()]):
                     for singleSym in sym:
                         # echo singleSym.treeRepr
-                        var pragma = Pragma(name: singleSym.strVal, field: ident.strVal)
+                        var pragma = Pragma(name: singleSym.strVal,
+                                field: ident.strVal)
                         pragmas.add(pragma)
     return quote do:
         `pragmas`

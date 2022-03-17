@@ -3,7 +3,7 @@ import macros
 type
     NodeKind = enum
         Literal, Operator
-    
+
     Node = ref object
         case kind: NodeKind
         of Literal:

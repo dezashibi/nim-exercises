@@ -10,7 +10,7 @@ var parsedFloat: float
 parsedInteger = stringInteger.parseInt
 parsedFloat = stringFloat.parseFloat
 
-echo parsedInteger, ", ", parsedInteger.type 
+echo parsedInteger, ", ", parsedInteger.type
 echo parsedFloat, ", ", parsedFloat.type
 
 echo ("Type something: ")

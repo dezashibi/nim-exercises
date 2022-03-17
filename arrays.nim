@@ -4,7 +4,7 @@ var
 
   # without type hint
   b = [1, 2, 3]
-  
+
   # this is an empty arary with 7 members
   d: array[7, string]
 

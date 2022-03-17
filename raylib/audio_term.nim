@@ -8,7 +8,7 @@ let music = loadMusicStream("./White_noise.ogg")
 
 playMusicStream(music)
 
-illwillInit(fullscreen=false)
+illwillInit(fullscreen = false)
 
 var
     timePlayed = 0.0
@@ -44,4 +44,4 @@ while true:
 
 music.unloadMusicStream() # Unload music stream buffers from RAM
 
-closeAudioDevice()     #  Close audio device
+closeAudioDevice() #  Close audio device

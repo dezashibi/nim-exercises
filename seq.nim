@@ -2,11 +2,11 @@
 var
   # declaration and initialization
   arrayA: array[3, int] = [1, 2, 3] # array
-  seqA: seq[int] = @[1, 2, 3] # sequence - no size required
+  seqA: seq[int] = @[1, 2, 3]       # sequence - no size required
 
   # initialization
-  arrayB = [1,2,3] #array
-  seqB = @[1,2,3] #sequence
+  arrayB = [1, 2, 3]                #array
+  seqB = @[1, 2, 3]                 #sequence
 
   # declaration
   arrayD: array[7, string]

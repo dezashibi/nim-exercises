@@ -20,9 +20,9 @@ const screenHeight = 450
 
 initWindow screenWidth, screenHeight, "raylib [audio] example - music playing (streaming)"
 
-initAudioDevice()      #  Initialize audio device
+initAudioDevice() #  Initialize audio device
 
-let music = loadMusicStream("./White_noise.ogg")         #  Load WAV audio file
+let music = loadMusicStream("./White_noise.ogg") #  Load WAV audio file
 
 playMusicStream(music)
 
@@ -30,11 +30,11 @@ var
     timePlayed = 0.0
     pause = false
 
-60.setTargetFPS        #  Set our game to run at 60 frames-per-second
+60.setTargetFPS #  Set our game to run at 60 frames-per-second
 # --------------------------------------------------------------------------------------
 
 #  Main game loop
-while not windowShouldClose():  #  Detect window close button or ESC key
+while not windowShouldClose(): #  Detect window close button or ESC key
     #  Update
     # ----------------------------------------------------------------------------------
     music.updateMusicStream()
@@ -76,7 +76,7 @@ while not windowShouldClose():  #  Detect window close button or ESC key
 
 music.unloadMusicStream() # Unload music stream buffers from RAM
 
-closeAudioDevice()     #  Close audio device
+closeAudioDevice() #  Close audio device
 
-closeWindow()          #  Close window and OpenGL context
+closeWindow() #  Close window and OpenGL context
 # --------------------------------------------------------------------------------------

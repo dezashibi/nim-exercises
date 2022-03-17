@@ -1,5 +1,5 @@
 import strutils except split
-import unicode 
+import unicode
 
 echo "Hello Woبrld!".split("ب".toRunes)
 

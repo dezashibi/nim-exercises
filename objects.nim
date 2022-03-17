@@ -8,7 +8,7 @@ type
   Person = object of RootObj
     name: string
     age: int
-  
+
   Student = object of Person
     id: int
 

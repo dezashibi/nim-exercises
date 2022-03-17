@@ -11,10 +11,10 @@ proc createRefType(ident: NimIdent, identDefs: seq[NimNode]): NimNode =
                     newEmptyNode(),
                     newTree(nnkRecList,
                         identDefs
-                    )
-                )
-            )
         )
+    )
+        )
+    )
     )
 
 proc toIdentDefs(stmtList: NimNode): seq[NimNode] =

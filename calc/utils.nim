@@ -148,228 +148,235 @@ proc newNode(k: NodeKind): Node =
     result = Node(kind: k)
 
 proc tokenize(term: string): seq[Node] =
-  var i = 0
-  while i < term.len:
-    let c = term[i]
-    if c in Whitespace:
-      i.inc
-      continue
-    if c in Digits:
-      # float literal
-      var j = i + 1
-      while j < term.len and term[j] in DigitsWithSep:
-        j.inc
-      var str = term.substr(i, j - 1)
-      try:
-        var node = newNode(NK_Literal)
-        node.value = str.replace(",").parseFloat.checkNumber
-        result.add(node)
-      except:
-        raise newCalcException(Error4, "Invalid term '" & str & "'")
-      i = j
-      continue
-    # string literal
-    if c in IdentStartChars:
-      var j = i + 1
-      while j < term.len and term[j] in IdentChars:
-        j.inc
-      let str = term.substr(i, j - 1)
-      var node = newNode(NK_Identifier)
-      node.name = str
-      node.nameLower = str.toLower()
-      result.add(node)
-      i = j
-      continue
-    if c == '(':
-      var node = newNode(NK_OpeningBracket)
-      result.add(node)
-      i.inc
-      continue
-    if c == ')':
-      var node = newNode(NK_ClosingBracket)
-      result.add(node)
-      i.inc
-      continue
-    let op = OpChars.find(c)
-    if op != -1:
-      var node = newNode(NK_Operator)
-      node.operator = cast[Operator](op)
-      result.add(node)
-      i.inc
-      continue
-    raise newCalcException(Error7, "Invalid character '" & c & "'")
+    var i = 0
+    while i < term.len:
+        let c = term[i]
+        if c in Whitespace:
+            i.inc
+            continue
+        if c in Digits:
+            # float literal
+            var j = i + 1
+            while j < term.len and term[j] in DigitsWithSep:
+                j.inc
+            var str = term.substr(i, j - 1)
+            try:
+                var node = newNode(NK_Literal)
+                node.value = str.replace(",").parseFloat.checkNumber
+                result.add(node)
+            except:
+                raise newCalcException(Error4, "Invalid term '" & str & "'")
+            i = j
+            continue
+        # string literal
+        if c in IdentStartChars:
+            var j = i + 1
+            while j < term.len and term[j] in IdentChars:
+                j.inc
+            let str = term.substr(i, j - 1)
+            var node = newNode(NK_Identifier)
+            node.name = str
+            node.nameLower = str.toLower()
+            result.add(node)
+            i = j
+            continue
+        if c == '(':
+            var node = newNode(NK_OpeningBracket)
+            result.add(node)
+            i.inc
+            continue
+        if c == ')':
+            var node = newNode(NK_ClosingBracket)
+            result.add(node)
+            i.inc
+            continue
+        let op = OpChars.find(c)
+        if op != -1:
+            var node = newNode(NK_Operator)
+            node.operator = cast[Operator](op)
+            result.add(node)
+            i.inc
+            continue
+        raise newCalcException(Error7, "Invalid character '" & c & "'")
 
 proc transformToTree(nodes: seq[Node]): Node
 
 proc transformToTree_operator(nodes: seq[Node]): Node =
-  # looking for operator with lowest precedence (highest value)
-  for i in 0..nodes.len - 1:
-    let node = nodes[i]
-    if node.kind == NK_Operator:
-      if result == nil or node.operator.int >= result.operator.int:
-        result = node
-  if result == nil:
-    raise newCalcException(Error10, "Operator expected")
-  var
-    before = true
-    leftNodes, rightNodes: seq[Node]
-  for i in 0..nodes.len - 1:
-    let node = nodes[i]
-    if node == result:
-      before = false
-      continue
-    if before:
-      leftNodes.add(node)
+    # looking for operator with lowest precedence (highest value)
+    for i in 0..nodes.len - 1:
+        let node = nodes[i]
+        if node.kind == NK_Operator:
+            if result == nil or node.operator.int >= result.operator.int:
+                result = node
+    if result == nil:
+        raise newCalcException(Error10, "Operator expected")
+    var
+        before = true
+        leftNodes, rightNodes: seq[Node]
+    for i in 0..nodes.len - 1:
+        let node = nodes[i]
+        if node == result:
+            before = false
+            continue
+        if before:
+            leftNodes.add(node)
+        else:
+            rightNodes.add(node)
+    if leftNodes.len > 0:
+        result.left = transformToTree(leftNodes)
+    elif result.operator != Op_Minus:
+        raise newCalcException(Error10, "Operand before '" & OpChars[
+                result.operator.int] & "' expected")
+    if rightNodes.len > 0:
+        result.right = transformToTree(rightNodes)
     else:
-      rightNodes.add(node)
-  if leftNodes.len > 0:
-    result.left = transformToTree(leftNodes)
-  elif result.operator != Op_Minus:
-    raise newCalcException(Error10, "Operand before '" & OpChars[result.operator.int] & "' expected")
-  if rightNodes.len > 0:
-    result.right = transformToTree(rightNodes)
-  else:
-    raise newCalcException(Error10, "Operand after '" & OpChars[result.operator.int] & "' expected")
+        raise newCalcException(Error10, "Operand after '" & OpChars[
+                result.operator.int] & "' expected")
 
 proc transformToTree_brackets(nodes: seq[Node]): Node =
-  # looking for most outer brackets
-  var
-    openingBracket: Node
-    openingBracketIndex = -1
-    closingBracket: Node
-    level = 0
-  for i in 0..nodes.len - 1:
-    let node = nodes[i]
-    if node.kind == NK_OpeningBracket:
-      if openingBracket == nil:
-        openingBracket = node
-        openingBracketIndex = i
-      else:
-        level.inc
-    elif node.kind == NK_ClosingBracket:
-      if level == 0:
-        closingBracket = node
-        break
-      level.dec
-  if openingBracket != nil:
-    if closingBracket == nil:
-      raise newCalcException(Error2, "')' expected")
+    # looking for most outer brackets
     var
-      inBrackets = false
-      nodesInBrackets: seq[Node]
-      newNodeList: seq[Node]
-      bracketNode = newNode(NK_InBrackets)
-      identifierNode: Node
+        openingBracket: Node
+        openingBracketIndex = -1
+        closingBracket: Node
+        level = 0
     for i in 0..nodes.len - 1:
-      let node = nodes[i]
-      if i == openingBracketIndex - 1 and node.kind == NK_Identifier:
-        identifierNode = node
-        newNodeList.add(identifierNode)
-        continue
-      if node == openingBracket:
-        inBrackets = true
-        if identifierNode == nil:
-          newNodeList.add(bracketNode)
-        continue
-      if node == closingBracket:
-        inBrackets = false
-        continue
-      if inBrackets:
-        nodesInBrackets.add(node)
-      else:
-        newNodeList.add(node)
-    if nodesInBrackets.len == 0:
-      raise newCalcException(Error10, "Value or identifier expected")
-    if identifierNode != nil:
-      identifierNode.param = transformToTree(nodesInBrackets)
-    else:
-      bracketNode.node = transformToTree(nodesInBrackets)
-    return transformToTree(newNodeList)
+        let node = nodes[i]
+        if node.kind == NK_OpeningBracket:
+            if openingBracket == nil:
+                openingBracket = node
+                openingBracketIndex = i
+            else:
+                level.inc
+        elif node.kind == NK_ClosingBracket:
+            if level == 0:
+                closingBracket = node
+                break
+            level.dec
+    if openingBracket != nil:
+        if closingBracket == nil:
+            raise newCalcException(Error2, "')' expected")
+        var
+            inBrackets = false
+            nodesInBrackets: seq[Node]
+            newNodeList: seq[Node]
+            bracketNode = newNode(NK_InBrackets)
+            identifierNode: Node
+        for i in 0..nodes.len - 1:
+            let node = nodes[i]
+            if i == openingBracketIndex - 1 and node.kind == NK_Identifier:
+                identifierNode = node
+                newNodeList.add(identifierNode)
+                continue
+            if node == openingBracket:
+                inBrackets = true
+                if identifierNode == nil:
+                    newNodeList.add(bracketNode)
+                continue
+            if node == closingBracket:
+                inBrackets = false
+                continue
+            if inBrackets:
+                nodesInBrackets.add(node)
+            else:
+                newNodeList.add(node)
+        if nodesInBrackets.len == 0:
+            raise newCalcException(Error10, "Value or identifier expected")
+        if identifierNode != nil:
+            identifierNode.param = transformToTree(nodesInBrackets)
+        else:
+            bracketNode.node = transformToTree(nodesInBrackets)
+        return transformToTree(newNodeList)
 
-  # checking for invalid ')'
-  if closingBracket != nil:
-    raise newCalcException(Error10, "Unexpected ')'")
+    # checking for invalid ')'
+    if closingBracket != nil:
+        raise newCalcException(Error10, "Unexpected ')'")
 
 proc transformToTree(nodes: seq[Node]): Node =
-  if nodes.len == 1:
-    if nodes[0].kind != NK_Literal and nodes[0].kind != NK_InBrackets and nodes[0].kind != NK_Identifier:
-      raise newCalcException(Error1, "Value or identifier expected")
-    return nodes[0]
+    if nodes.len == 1:
+        if nodes[0].kind != NK_Literal and nodes[0].kind != NK_InBrackets and
+                nodes[0].kind != NK_Identifier:
+            raise newCalcException(Error1, "Value or identifier expected")
+        return nodes[0]
 
-  result = transformToTree_brackets(nodes)
-  if result == nil:
-    result = transformToTree_operator(nodes)
+    result = transformToTree_brackets(nodes)
+    if result == nil:
+        result = transformToTree_operator(nodes)
 
 proc calcNodeValue(node: Node): float =
-  case node.kind:
-  of NK_Literal:
-    return node.value
-  of NK_InBrackets:
-    return calcNodeValue(node.node)
-  of NK_Operator:
-    case node.operator:
-    of Op_Power:
-      return pow(calcNodeValue(node.left), calcNodeValue(node.right)).checkNumber
-    of Op_Mult:
-      return (calcNodeValue(node.left) * calcNodeValue(node.right)).checkNumber
-    of Op_Div:
-      return (calcNodeValue(node.left) / calcNodeValue(node.right)).checkNumber
-    of Op_Plus:
-      return (calcNodeValue(node.left) + calcNodeValue(node.right)).checkNumber
-    of Op_Minus:
-      if node.left == nil:
-        return -calcNodeValue(node.right)
-      else:
-        return calcNodeValue(node.left) - calcNodeValue(node.right)
-  of NK_Identifier:
-    proc checkConstant() =
-      if node.param != nil:
-        raise newCalcException(Error1, "'" & node.name & "' is not a function")
-    proc getParamValue(): float =
-      if node.param == nil:
-        raise newCalcException(Error1, "'" & node.name & "' is a function and needs a parameter")
-      return calcNodeValue(node.param)
-    case node.nameLower:
-    of "pi":
-      checkConstant()
-      return 3.14159265358979323846
-    of "e":
-      checkConstant()
-      return 2.71828182845904523536
-    of "round":
-      return round(getParamValue()).checkNumber
-    of "floor":
-      return floor(getParamValue()).checkNumber
-    of "ceil":
-      return ceil(getParamValue()).checkNumber
-    of "sqrt":
-      return sqrt(getParamValue()).checkNumber
-    of "abs":
-      return abs(getParamValue()).checkNumber
-    of "sin":
-      return sin(getParamValue()).checkNumber
-    of "cos":
-      return cos(getParamValue()).checkNumber
-    of "tan":
-      return tan(getParamValue()).checkNumber
-    of "ln":
-      return ln(getParamValue()).checkNumber
-    of "log2":
-      return log2(getParamValue()).checkNumber
-    raise newCalcException(Error1, "Invalid identifier '" & node.name & "'")
-  else:
-    discard
+    case node.kind:
+    of NK_Literal:
+        return node.value
+    of NK_InBrackets:
+        return calcNodeValue(node.node)
+    of NK_Operator:
+        case node.operator:
+        of Op_Power:
+            return pow(calcNodeValue(node.left), calcNodeValue(
+                    node.right)).checkNumber
+        of Op_Mult:
+            return (calcNodeValue(node.left) * calcNodeValue(
+                    node.right)).checkNumber
+        of Op_Div:
+            return (calcNodeValue(node.left) / calcNodeValue(
+                    node.right)).checkNumber
+        of Op_Plus:
+            return (calcNodeValue(node.left) + calcNodeValue(
+                    node.right)).checkNumber
+        of Op_Minus:
+            if node.left == nil:
+                return -calcNodeValue(node.right)
+            else:
+                return calcNodeValue(node.left) - calcNodeValue(node.right)
+    of NK_Identifier:
+        proc checkConstant() =
+            if node.param != nil:
+                raise newCalcException(Error1, "'" & node.name & "' is not a function")
+        proc getParamValue(): float =
+            if node.param == nil:
+                raise newCalcException(Error1, "'" & node.name & "' is a function and needs a parameter")
+            return calcNodeValue(node.param)
+        case node.nameLower:
+        of "pi":
+            checkConstant()
+            return 3.14159265358979323846
+        of "e":
+            checkConstant()
+            return 2.71828182845904523536
+        of "round":
+            return round(getParamValue()).checkNumber
+        of "floor":
+            return floor(getParamValue()).checkNumber
+        of "ceil":
+            return ceil(getParamValue()).checkNumber
+        of "sqrt":
+            return sqrt(getParamValue()).checkNumber
+        of "abs":
+            return abs(getParamValue()).checkNumber
+        of "sin":
+            return sin(getParamValue()).checkNumber
+        of "cos":
+            return cos(getParamValue()).checkNumber
+        of "tan":
+            return tan(getParamValue()).checkNumber
+        of "ln":
+            return ln(getParamValue()).checkNumber
+        of "log2":
+            return log2(getParamValue()).checkNumber
+        raise newCalcException(Error1, "Invalid identifier '" & node.name & "'")
+    else:
+        discard
 
 proc calculate*(term: string): float =
-  var nodes = tokenize(term)
+    var nodes = tokenize(term)
 
-  if nodes.len == 0:
-    raise newCalcException(Error1, "Term is empty")
+    if nodes.len == 0:
+        raise newCalcException(Error1, "Term is empty")
 
-  # debugPrint(nodes)
+    # debugPrint(nodes)
 
-  let rootNode = transformToTree(nodes)
+    let rootNode = transformToTree(nodes)
 
-  # debugPrint(rootNode)
+    # debugPrint(rootNode)
 
-  result = calcNodeValue(rootNode)
+    result = calcNodeValue(rootNode)

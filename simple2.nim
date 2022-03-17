@@ -8,7 +8,7 @@ variableName = "Some other String Value"
 ]#
 
 # var a = nil #nul = null
-var b: string  # the initial value is nil
+var b: string # the initial value is nil
 var c = 10
 
 echo b
