@@ -5,7 +5,7 @@ author        = "Navid Dezashibi"
 description   = "Bencode parser"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["bencode"]
+bin           = @["main"]
 
 
 # Dependencies
