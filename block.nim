@@ -14,3 +14,7 @@ block myblock2:
   echo "still in block" # it won't be printed
 echo "outside the block"
 
+echo "Hello block arg ":
+  let a = "Wor"
+  let b = "ld!"
+  a & b
