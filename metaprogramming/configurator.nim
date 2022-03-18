@@ -1,4 +1,4 @@
-import macros
+import std/macros
 
 proc createRefType(ident: NimIdent, identDefs: seq[NimNode]): NimNode =
     result = newTree(nnkTypeSection,
