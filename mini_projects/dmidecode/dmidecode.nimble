@@ -5,7 +5,7 @@ author        = "Navid Dezashibi"
 description   = "dmidecode app"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["dmidecode"]
+bin           = @["main"]
 
 
 # Dependencies
