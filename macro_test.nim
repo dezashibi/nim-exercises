@@ -28,6 +28,12 @@ macro choiceChecker(statement: untyped): untyped =
   result.add newNimNode(nnkElse).add(elseBody) #Appends else body
   echo result.repr
 
+dumpTree:
+  choiceChecker:
+    11 == 13: echo "Test"
+    12 == 14: echo "Huh"
+    _: echo "duh"
+
 choiceChecker:
   11 == 13: echo "Test"
   12 == 14: echo "Huh"
